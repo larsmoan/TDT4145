@@ -27,7 +27,7 @@ create table Delstrekning (
 );
 
 create table Operator (
-	OpereratorNavn TEXT PRIMARY KEY
+	OperatorNavn TEXT PRIMARY KEY
 );
 
 create table Tog (
@@ -82,8 +82,8 @@ create table RuteTabell (
 	RuteID INTEGER,
 	tabellID INTEGER,
 	StasjonsNavn TEXT,
-	ankomstTid text,
-	avgangsTid text,
+	tid text,
+	PRIMARY KEY (RuteID, tabellID),
 	FOREIGN KEY (RuteID) REFERENCES Rute(RuteID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE

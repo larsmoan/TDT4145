@@ -27,3 +27,10 @@
     
     h) For en bruker skal man kunne finne all informasjon om de kjøpene hen har gjort for fremtidige
     reiser. Denne funksjonaliteten skal programmeres.
+
+
+
+    !!!Endringer!!
+    Fjernet ankomstTid / avgangstid siden det kun finnes en tid og kalte den tid i RuteTabell
+
+    Av en eller annen grunn skjønner den ikke deklareringen av Delstrekning sin foreign key til Strekning(Navn)
