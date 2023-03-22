@@ -1,14 +1,17 @@
-create table Stasjon (
-	Navn TEXT PRIMARY key,
+CREATE TABLE Stasjon
+(
+	Navn TEXT PRIMARY KEY,
 	meterOverHavet INTEGER
 );
 
-create table Strekning (
+CREATE TABLE Strekning
+(
 	Navn TEXT PRIMARY KEY,
 	fremdriftsEnergi TEXT
 );
 
-create table Delstrekning (
+CREATE TABLE Delstrekning
+(
 	StrekningsID TEXT PRIMARY KEY,
 	InngaarIstrekning TEXT,
 	startStasjon TEXT,
@@ -26,16 +29,19 @@ create table Delstrekning (
 		ON DELETE CASCADE
 );
 
-create table Operator (
+CREATE TABLE Operator
+(
 	OperatorNavn TEXT PRIMARY KEY
 );
 
-create table Tog (
+CREATE TABLE Tog
+(
 	TogID INTEGER PRIMARY KEY
 );
 
 
-create table Rute (
+CREATE TABLE Rute
+(
 	RuteID INTEGER PRIMARY KEY,
 	TogID INTEGER,
 	Retning TEXT,
@@ -48,51 +54,54 @@ create table Rute (
 	FOREIGN KEY (startStasjon) REFERENCES Stasjon(Navn)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
-	FOREIGN key (endeStasjon) REFERENCES Stasjon(Navn)
+	FOREIGN KEY (endeStasjon) REFERENCES Stasjon(Navn)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
-	FOREIGN Key (driftesAv) REFERENCES Operator(OperatorNavn)
+	FOREIGN KEY (driftesAv) REFERENCES Operator(OperatorNavn)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-
-create table InngaarIRute (
+CREATE TABLE InngaarIRute
+(
 	RuteID INTEGER,
 	StrekningsID TEXT,
 	PRIMARY KEY (RuteID, StrekningsID),
-	FOREIGN key (RuteID) REFERENCES Rute(RuteID)
+	FOREIGN KEY (RuteID) REFERENCES Rute(RuteID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
-	FOREIGN key (StrekningsID) REFERENCES Delstrekning(StrekningsID)
+	FOREIGN KEY (StrekningsID) REFERENCES Delstrekning(StrekningsID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-create table RuteDag (
+CREATE TABLE RuteDag
+(
 	RuteID INTEGER,
 	ukedag TEXT,
 	PRIMARY KEY (RuteID, ukedag),
-	FOREIGN KEY (RuteID) REFERENCES Rute(Rute)
+	FOREIGN KEY (RuteID) REFERENCES Rute(RuteID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-create table RuteTabell (
+CREATE TABLE RuteTabell
+(
 	RuteID INTEGER,
 	tabellID INTEGER,
 	StasjonsNavn TEXT,
-	tid text,
+	tid TEXT,
 	PRIMARY KEY (RuteID, tabellID),
 	FOREIGN KEY (RuteID) REFERENCES Rute(RuteID)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
 	FOREIGN KEY (StasjonsNavn) REFERENCES Stasjon(Navn)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
-	
-create table RuteForekomst (
+
+CREATE TABLE RuteForekomst
+(
 	ForekomstID INTEGER PRIMARY KEY,
 	RuteID INTEGER,
 	dato TEXT,
@@ -100,7 +109,8 @@ create table RuteForekomst (
 		ON UPDATE CASCADE
 );
 
-create table Vogn (
+CREATE TABLE Vogn
+(
 	OperatorNavn TEXT,
 	VognID INTEGER,
 	Navn TEXT,
@@ -110,7 +120,8 @@ create table Vogn (
 		ON DELETE CASCADE
 );
 
-create table DelAvTog (
+CREATE TABLE DelAvTog
+(
 	TogID INTEGER,
 	OperatorNavn TEXT,
 	VognID INTEGER,
@@ -118,25 +129,26 @@ create table DelAvTog (
 	PRIMARY KEY (TogID, OperatorNavn, VognID),
 	FOREIGN KEY (TogID) REFERENCES Tog(TogID)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
 	FOREIGN KEY (OperatorNavn, VognID) REFERENCES Vogn(OperatorNavn, VognID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-create table SitteVogn (
+CREATE TABLE SitteVogn
+(
 	OperatorNavn TEXT,
 	VognID INTEGER,
 	antallRader INTEGER,
 	seterPerRad INTEGER,
+	PRIMARY KEY (OperatorNavn, VognID),
 	FOREIGN KEY (OperatorNavn, VognID) REFERENCES Vogn(OperatorNavn, VognID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
-	
-	PRIMARY KEY (OperatorNavn, VognID)
 );
 
-create table SoveVogn (
+CREATE TABLE SoveVogn
+(
 	OperatorNavn TEXT,
 	VognID INTEGER,
 	antallKupeer INTEGER,
@@ -146,34 +158,32 @@ create table SoveVogn (
 		ON DELETE CASCADE
 );
 
-
-create table Billett (
+CREATE TABLE Billett
+(
 	ForekomstID INTEGER,
 	billettID INTEGER,
 	FOREIGN KEY (ForekomstID) REFERENCES RuteForekomst(ForekomstID)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
 	PRIMARY KEY (ForekomstID, billettID)
 );
 
-
-
-create table BillettOmfatter(
+CREATE TABLE BillettOmfatter
+(
 	ForekomstID INTEGER,
 	billettID INTEGER,
 	StrekningsID INTEGER,
 	PRIMARY KEY (ForekomstID, billettID, StrekningsID),
 	FOREIGN KEY (ForekomstID, billettID) REFERENCES Billett(ForekomstID, billettID)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE
-	
+		ON DELETE CASCADE,
 	FOREIGN KEY (StrekningsID) REFERENCES Delstrekning(StrekningsID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-
-create table SitteBillett (
+CREATE TABLE SitteBillett
+(
 	ForekomstID INTEGER,
 	billettID INTEGER,
 	OperatorNavn TEXT,
@@ -182,15 +192,14 @@ create table SitteBillett (
 	PRIMARY KEY (OperatorNavn, VognID, SeteID),
 	FOREIGN KEY (ForekomstID, billettID) REFERENCES Billett(ForekomstID, billettID)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
 	FOREIGN KEY (OperatorNavn, VognID, SeteID) REFERENCES Sete(OperatorNavn, VognID, SeteID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-
-
-create table SoveBillett (
+CREATE TABLE SoveBillett
+(
 	ForekomstID INTEGER,
 	billettID INTEGER,
 	OperatorNavn TEXT,
@@ -205,10 +214,8 @@ create table SoveBillett (
 		ON DELETE CASCADE
 );
 
-
-
-
-create table Sete (
+CREATE TABLE Sete
+(
 	OperatorNavn TEXT,
 	VognID INTEGER,
 	SeteID INTEGER,
@@ -218,7 +225,8 @@ create table Sete (
 		ON DELETE CASCADE
 );
 
-create table Seng (
+CREATE TABLE Seng
+(
 	OperatorNavn TEXT,
 	VognID INTEGER,
 	SengID INTEGER,
@@ -229,36 +237,33 @@ create table Seng (
 		ON DELETE CASCADE
 );
 
-
-
-
-
-create table Kunde(
-	KundeNr INTEGER PRIMARY KEY, 
+CREATE TABLE Kunde
+(
+	KundeNr INTEGER PRIMARY KEY,
 	epostAddr TEXT,
 	Navn TEXT,
 	telefonNR TEXT
 );
 
-create table KundeHos(
+CREATE TABLE KundeHos
+(
 	KundeNr INTEGER,
 	OperatorNavn TEXT,
 	PRIMARY KEY (KundeNr, OperatorNavn),
 	FOREIGN KEY (KundeNr) REFERENCES Kunde(KundeNr)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
 	FOREIGN KEY (OperatorNavn) REFERENCES Operator(OperatorNavn)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-
-
-create table KundeOrdre (
+CREATE TABLE KundeOrdre
+(
 	OrdreNr INTEGER PRIMARY KEY,
 	KundeNr INTEGER,
 	datoForBestilling TEXT,
-	tidspunktForBestilling TEXT, 
+	tidspunktForBestilling TEXT,
 	antallBilletter INTEGER,
 	FOREIGN KEY (KundeNr) REFERENCES Kunde(KundeNr)
 		ON UPDATE CASCADE
@@ -266,14 +271,15 @@ create table KundeOrdre (
 );
 
 
-create TABLE Bestilling (
+CREATE TABLE Bestilling
+(
 	OrdreNr INTEGER,
 	ForekomstID INTEGER,
 	billettID INTEGER,
 	PRIMARY KEY (OrdreNr, ForekomstID, billettID),
 	FOREIGN KEY (OrdreNr) REFERENCES KundeOrdre(OrdreNr)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE
+		ON DELETE CASCADE,
 	FOREIGN KEY (ForekomstID, billettID) REFERENCES Billett(ForekomstID, billettID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE

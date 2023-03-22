@@ -3,7 +3,7 @@ import os
 
 import datetime
 
-def create_db(filename):
+def CREATE_db(filename):
     #Just a dummy name for the database
     db_filename = filename[:-4] + '.db'
     ##Remove any existing database -  makes it easier to run the script multiple times
@@ -121,7 +121,7 @@ def get_togrute_info():
     c = conn.cursor()
     stasjon = input ("Hvilken stasjon vil du sjekke? ")
     
-    #Check if the stasjon exists by reading from the table Stasjon
+    #Check if the stasjon exists by reading from the TABLE Stasjon
     c.execute("SELECT * FROM Stasjon WHERE navn = ?", (stasjon,))
     if c.fetchone() is None:
         print("Stasjonen finnes ikke")
@@ -129,7 +129,7 @@ def get_togrute_info():
     
     #Get the ukedag from user
     ukedag = input("Hvilken ukedag? ")
-    #Check if the ukedag exists by reading from the table Rutedag
+    #Check if the ukedag exists by reading from the TABLE Rutedag
     c.execute("SELECT * FROM Rutedag WHERE ukedag = ?", (ukedag,))
     if c.fetchone() is None:
         print("Ukedagen finnes ikke")
@@ -165,7 +165,7 @@ def search_routes():
 
     stasjoner = [stasjon1, stasjon2]
     
-    #Check if the stasjon exists by reading from the table Stasjon
+    #Check if the stasjon exists by reading from the TABLE Stasjon
     c.execute("SELECT Stasjon.Navn FROM Stasjon")
     stasjonsnavn = c.fetchall()
 
@@ -183,14 +183,37 @@ def search_routes():
     conn.close()
     
     print(ruteforekomster)
+
+# Task e)
+def new_user():
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    c.execute("SELECT COUNT(*) FROM Kunde")
+    antall = c.fetchone()
+    newKundeNr = antall[0] + 1
+
+    print("KUNDEREGISTRERING\n")
+    navn = input("Navn: ")
+    epost = input("Epost: ")
+    tlf = input("Telefon: ")
+
+    c.execute("INSERT INTO Kunde VALUES (?,?,?,?)",(newKundeNr,epost,navn,tlf))
+    conn.commit()
+    
+    print(f"Kunde {newKundeNr}: {navn}, {epost}, {tlf}")
+
+    conn.close()
+
+
         
 
+new_user()
+#get_togrute_info()   
+#search_routes()
 
-    
-search_routes()
-
-""" #These functions will create and add data about the Nordlandsbanen to the database
-create_db("sql_prosjektet.sql")
+""" #These functions will CREATE and add data about the Nordlandsbanen to the database
+CREATE_db("sql_prosjektet.sql")
 init_db('sql_prosjektet.db') """
 
 
