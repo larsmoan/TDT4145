@@ -83,9 +83,9 @@ def init_db(db_filename):
     (3, 15, 'Steinkjer', '12:31'),
     (3, 16, 'Trondheim', '14:13')"""
 
-    strekning_query = """INSERT INTO Strekning (Navn, fremdriftsEnergi) VALUES
+    strekning_query = """INSERT INTO Strekning (StrekningsNavn, fremdriftsEnergi) VALUES
                         ('Nordlandsbanen', 'Diesel')"""
-    delstrekning_query = """INSERT INTO DelStrekning (StrekningsID, InngaarIstrekning, startStasjon, endeStasjon, lengde, antallSpor) VALUES
+    delstrekning_query = """INSERT INTO DelStrekning (DelstrekningsID, StrekningsNavn, startStasjon, endeStasjon, lengde, antallSpor) VALUES
                             (1, 'Nordlandsbanen', 'Trondheim', 'Steinkjer', 120, 2),
                             (2, 'Nordlandsbanen', 'Steinkjer', 'Mosjøen', 280, 1),
                             (3, 'Nordlandsbanen', 'Mosjøen', 'Mo i Rana', 90, 1),
@@ -95,10 +95,13 @@ def init_db(db_filename):
     ruteforekomst_query = """INSERT INTO RuteForekomst (ForekomstID, RuteID, dato) VALUES 
                             (1, 1, '2023-03-04'),
                             (2, 2, '2023-03-04'),
-                            (3, 3, '2023-03-04')
+                            (3, 3, '2023-03-04'),
+                            (4, 1, '2023-04-04'),
+                            (5, 2, '2023-04-04'),
+                            (6, 3, '2023-04-04')
                             """
     
-    inngaarIrute_query = """INSERT INTO InngaarIRute (RuteID,StrekningsID) VALUES
+    inngaarIrute_query = """INSERT INTO InngaarIRute (RuteID, DelstrekningsID) VALUES
                             (1, 1),(1, 2),(1, 3),(1, 4),(1, 5),
                             (2, 1),(2, 2),(2, 3),(2, 4),(2, 5),
                             (3, 1),(3, 2),(3, 3)"""
@@ -117,7 +120,38 @@ def init_db(db_filename):
     c.execute(strekning_query)
     c.execute(delstrekning_query)
     c.execute(ruteforekomst_query)
+
     c.execute(inngaarIrute_query)
+    c.execute("""SELECT * FROM SitteVogn""")
+    sete_query ="INSERT INTO Sete (OperatorNavn, VognID, SeteID) VALUES "
+    sitteVogner = c.fetchall()
+    for vognNr, vogn in enumerate(sitteVogner):
+        operator = vogn[0]
+        vognID = vogn[1]
+        antallRader = vogn[2]
+        seterPerRad = vogn[3]
+        for seteID in range(antallRader*seterPerRad):
+            if (seteID == 0) and (vognNr == 0):
+                sete_query+= f"('{operator}',{vognID},{seteID+1})"
+            else:
+                sete_query+= f", ('{operator}',{vognID},{seteID+1})"
+    c.execute(sete_query)
+
+    c.execute("""SELECT * FROM SoveVogn""")
+    seng_query ="INSERT INTO Seng (OperatorNavn, VognID, SengID, KupeNr) VALUES "
+    soveVogner = c.fetchall()
+    for vognNr, vogn in enumerate(soveVogner):
+        sengerPrKupee = 2
+        operator = vogn[0]
+        vognID = vogn[1]
+        antallKupeer = vogn[2]
+        for sengID in range(antallKupeer*sengerPrKupee):
+                kupeeNr = 1 + sengID//sengerPrKupee
+                if (sengID == 0) and (vognNr == 0):
+                    seng_query+= f"('{operator}',{vognID},{sengID+1},{kupeeNr})"
+                else:
+                    seng_query+= f", ('{operator}',{vognID},{sengID+1},{kupeeNr})"
+    c.execute(seng_query)
     conn.commit()
     conn.close()
 
@@ -227,7 +261,9 @@ def new_user(name,email,tlf):
     antall = c.fetchone()
     newKundeNr = antall[0] + 1
 
+
     c.execute("INSERT INTO Kunde VALUES (?,?,?,?)",(newKundeNr,email,name,tlf))
+
     conn.commit()
     
     print(f"Kunde {newKundeNr}: {name}, {email}, {tlf}")
@@ -240,12 +276,7 @@ def future_trips(kundeNr, email):
 
 
 
-
 menu()
 """ #These functions will create and add data about the Nordlandsbanen to the database
 create_db("sql_prosjektet.sql")
 init_db('sql_prosjektet.db') """
-
-
-
-
