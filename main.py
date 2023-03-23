@@ -83,9 +83,9 @@ def init_db(db_filename):
     (3, 15, 'Steinkjer', '12:31'),
     (3, 16, 'Trondheim', '14:13')"""
 
-    strekning_query = """INSERT INTO Strekning (Navn, fremdriftsEnergi) VALUES
+    strekning_query = """INSERT INTO Strekning (StrekningsNavn, fremdriftsEnergi) VALUES
                         ('Nordlandsbanen', 'Diesel')"""
-    delstrekning_query = """INSERT INTO DelStrekning (StrekningsID, InngaarIstrekning, startStasjon, endeStasjon, lengde, antallSpor) VALUES
+    delstrekning_query = """INSERT INTO DelStrekning (DelstrekningsID, StrekningsNavn, startStasjon, endeStasjon, lengde, antallSpor) VALUES
                             (1, 'Nordlandsbanen', 'Trondheim', 'Steinkjer', 120, 2),
                             (2, 'Nordlandsbanen', 'Steinkjer', 'Mosjøen', 280, 1),
                             (3, 'Nordlandsbanen', 'Mosjøen', 'Mo i Rana', 90, 1),

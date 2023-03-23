@@ -6,19 +6,19 @@ CREATE TABLE Stasjon
 
 CREATE TABLE Strekning
 (
-	Navn TEXT PRIMARY KEY,
+	StrekningsNavn TEXT PRIMARY KEY,
 	fremdriftsEnergi TEXT
 );
 
 CREATE TABLE Delstrekning
 (
-	StrekningsID TEXT PRIMARY KEY,
-	InngaarIstrekning TEXT,
+	DelstrekningsID TEXT PRIMARY KEY,
+	StrekningsNavn TEXT,
 	startStasjon TEXT,
 	endeStasjon TEXT,
 	lengde REAL,
 	antallSpor INTEGER,
-	FOREIGN KEY (InngaarIstrekning) REFERENCES Strekning(Navn)
+	FOREIGN KEY (StrekningsNavn) REFERENCES Strekning(StrekningsNavn)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
 	FOREIGN KEY (startStasjon) REFERENCES Stasjon(Navn)
@@ -65,12 +65,12 @@ CREATE TABLE Rute
 CREATE TABLE InngaarIRute
 (
 	RuteID INTEGER,
-	StrekningsID TEXT,
-	PRIMARY KEY (RuteID, StrekningsID),
+	DelstrekningsID TEXT,
+	PRIMARY KEY (RuteID, DelstrekningsID),
 	FOREIGN KEY (RuteID) REFERENCES Rute(RuteID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
-	FOREIGN KEY (StrekningsID) REFERENCES Delstrekning(StrekningsID)
+	FOREIGN KEY (DelstrekningsID) REFERENCES Delstrekning(DelstrekningsID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
@@ -172,12 +172,12 @@ CREATE TABLE BillettOmfatter
 (
 	ForekomstID INTEGER,
 	billettID INTEGER,
-	StrekningsID INTEGER,
-	PRIMARY KEY (ForekomstID, billettID, StrekningsID),
+	DelstrekningsID INTEGER,
+	PRIMARY KEY (ForekomstID, billettID, DelstrekningsID),
 	FOREIGN KEY (ForekomstID, billettID) REFERENCES Billett(ForekomstID, billettID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
-	FOREIGN KEY (StrekningsID) REFERENCES Delstrekning(StrekningsID)
+	FOREIGN KEY (DelstrekningsID) REFERENCES Delstrekning(DelstrekningsID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
