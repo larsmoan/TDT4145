@@ -47,7 +47,7 @@ CREATE TABLE Rute
 	Retning TEXT,
 	startStasjon TEXT,
 	endeStasjon TEXT,
-	driftesAv TEXT,
+	OperatorNavn TEXT,
 	FOREIGN KEY (TogID) REFERENCES Tog(TogID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
@@ -57,7 +57,7 @@ CREATE TABLE Rute
 	FOREIGN KEY (endeStasjon) REFERENCES Stasjon(Navn)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
-	FOREIGN KEY (driftesAv) REFERENCES Operator(OperatorNavn)
+	FOREIGN KEY (OperatorNavn) REFERENCES Operator(OperatorNavn)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
@@ -229,9 +229,9 @@ CREATE TABLE Seng
 (
 	OperatorNavn TEXT,
 	VognID INTEGER,
-	SengID INTEGER,
+	SengeID INTEGER,
 	KupeNr INTEGER,
-	PRIMARY KEY (OperatorNavn, VognID, SengID),
+	PRIMARY KEY (OperatorNavn, VognID, SengeID),
 	FOREIGN KEY (OperatorNavn, VognID) REFERENCES SoveVogn(OperatorNavn, VognID)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE
