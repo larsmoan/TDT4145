@@ -93,9 +93,9 @@ def init_db(db_filename):
                             (5, 'Nordlandsbanen', 'Fauske', 'Bodø', 60, 1)"""
     
     ruteforekomst_query = """INSERT INTO RuteForekomst (ForekomstID, RuteID, dato) VALUES 
-                            (1, 1, '2023-03-4'),
-                            (2, 2, '2023-03-4'),
-                            (3, 3, '2023-03-4')
+                            (1, 1, '2023-03-04'),
+                            (2, 2, '2023-03-04'),
+                            (3, 3, '2023-03-04')
                             """
     
     c.execute(stasjons_query)
@@ -206,14 +206,12 @@ def new_user():
     conn.close()
 
 
-        
 
-new_user()
-#get_togrute_info()   
-#search_routes()
+    
+search_routes()
 
-""" #These functions will CREATE and add data about the Nordlandsbanen to the database
-CREATE_db("sql_prosjektet.sql")
+""" #These functions will create and add data about the Nordlandsbanen to the database
+create_db("sql_prosjektet.sql")
 init_db('sql_prosjektet.db') """
 
 
