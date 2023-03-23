@@ -24,7 +24,7 @@
     g) Registrerte kunder skal kunne finne ledige billetter for en oppgitt strekning på en ønsket togrute
     og kjøpe de billettene hen ønsker. Denne funksjonaliteten skal programmeres.
     • Pass på at dere bare selger ledige plasser
-    
+
     h) For en bruker skal man kunne finne all informasjon om de kjøpene hen har gjort for fremtidige
     reiser. Denne funksjonaliteten skal programmeres.
 
@@ -33,4 +33,4 @@
     !!!Endringer!!
     Fjernet ankomstTid / avgangstid siden det kun finnes en tid og kalte den tid i RuteTabell
 
-    Av en eller annen grunn skjønner den ikke deklareringen av Delstrekning sin foreign key til Strekning(Navn)
+    Av en eller annen grunn skjønner den ikke deklareringen av Delstrekning sin foreign KEY til Strekning(Navn)
