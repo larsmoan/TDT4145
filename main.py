@@ -95,7 +95,10 @@ def init_db(db_filename):
     ruteforekomst_query = """INSERT INTO RuteForekomst (ForekomstID, RuteID, dato) VALUES 
                             (1, 1, '2023-03-04'),
                             (2, 2, '2023-03-04'),
-                            (3, 3, '2023-03-04')
+                            (3, 3, '2023-03-04'),
+                            (4, 1, '2023-04-04'),
+                            (5, 2, '2023-04-04'),
+                            (6, 3, '2023-04-04')
                             """
     
     c.execute(stasjons_query)
@@ -112,6 +115,36 @@ def init_db(db_filename):
     c.execute(strekning_query)
     c.execute(delstrekning_query)
     c.execute(ruteforekomst_query)
+    c.execute("""SELECT * FROM SitteVogn""")
+    sete_query ="INSERT INTO Sete (OperatorNavn, VognID, SeteID) VALUES "
+    sitteVogner = c.fetchall()
+    for vognNr, vogn in enumerate(sitteVogner):
+        operator = vogn[0]
+        vognID = vogn[1]
+        antallRader = vogn[2]
+        seterPerRad = vogn[3]
+        for seteID in range(antallRader*seterPerRad):
+            if (seteID == 0) and (vognNr == 0):
+                sete_query+= f"('{operator}',{vognID},{seteID+1})"
+            else:
+                sete_query+= f", ('{operator}',{vognID},{seteID+1})"
+    c.execute(sete_query)
+
+    c.execute("""SELECT * FROM SoveVogn""")
+    seng_query ="INSERT INTO Seng (OperatorNavn, VognID, SengID, KupeNr) VALUES "
+    soveVogner = c.fetchall()
+    for vognNr, vogn in enumerate(soveVogner):
+        sengerPrKupee = 2
+        operator = vogn[0]
+        vognID = vogn[1]
+        antallKupeer = vogn[2]
+        for sengID in range(antallKupeer*sengerPrKupee):
+                kupeeNr = 1 + sengID//sengerPrKupee
+                if (sengID == 0) and (vognNr == 0):
+                    seng_query+= f"('{operator}',{vognID},{sengID+1},{kupeeNr})"
+                else:
+                    seng_query+= f", ('{operator}',{vognID},{sengID+1},{kupeeNr})"
+    c.execute(seng_query)
     conn.commit()
     conn.close()
 
@@ -198,7 +231,7 @@ def new_user():
     epost = input("Epost: ")
     tlf = input("Telefon: ")
 
-    c.execute("INSERT INTO Kunde VALUES (?,?,?,?)",(newKundeNr,epost,navn,tlf))
+    c.execute(f"INSERT INTO Kunde VALUES ({newKundeNr},{epost},{navn},{tlf})")
     conn.commit()
     
     print(f"Kunde {newKundeNr}: {navn}, {epost}, {tlf}")
@@ -206,14 +239,10 @@ def new_user():
     conn.close()
 
 
-
+#new_user()
     
-search_routes()
+#search_routes()
 
-""" #These functions will create and add data about the Nordlandsbanen to the database
-create_db("sql_prosjektet.sql")
-init_db('sql_prosjektet.db') """
-
-
-
-
+#These functions will create and add data about the Nordlandsbanen to the database
+CREATE_db("sql_prosjektet.sql")
+init_db('sql_prosjektet.db')
