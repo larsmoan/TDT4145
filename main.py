@@ -98,6 +98,11 @@ def init_db(db_filename):
                             (3, 3, '2023-03-04')
                             """
     
+    inngaarIrute_query = """INSERT INTO InngaarIRute (RuteID,StrekningsID) VALUES
+                            (1, 1),(1, 2),(1, 3),(1, 4),(1, 5),
+                            (2, 1),(2, 2),(2, 3),(2, 4),(2, 5),
+                            (3, 1),(3, 2),(3, 3)"""
+    
     c.execute(stasjons_query)
     c.execute(tog_query)
     c.execute(rute_query)
@@ -112,14 +117,52 @@ def init_db(db_filename):
     c.execute(strekning_query)
     c.execute(delstrekning_query)
     c.execute(ruteforekomst_query)
+    c.execute(inngaarIrute_query)
     conn.commit()
     conn.close()
 
+# Main program to run
+def menu():
+    print("Dette er en database over jernbanen i Norge\n")
+    print("0. Avslutt program")
+    print("1. Finn tidspunkt på togruter som passer en stasjon en gitt ukedag")
+    print("2. Finn togruter som går mellom to stasjoner på et tidspunkt og dag")
+    print("3. Registrer ny kunde")
+    print("4. Kjøp billetter til en togrute")
+    print("5. Vis fremtidige reiser\n")
+    num = -1
+    while num != 0:
+        num = input("Skirv inn tallet på operasjonen du ønsker å utføre: ")
+        match num:
+            case "0":
+                break
+            case "1":
+                date = input("Dato (YYYY-DD-MM): ")
+                stasjon1 = input("Startstasjon: ")
+                stasjon2 = input("Endestasjon: ")
+                search_routes(date, stasjon1, stasjon2)
+            case "2":
+                stasjon = input ("Hvilken stasjon vil du sjekke? ")
+                ukedag = input("Hvilken ukedag? ")
+                get_togrute_info(stasjon,ukedag)
+            case "3":
+                print("KUNDEREGISTRERING\n")
+                navn = input("Navn: ")
+                epost = input("Epost: ")
+                tlf = input("Telefon: ")
+                new_user(navn,epost,tlf)
+            case "4":
+                print("Denne funksjonaliteten støttes ikke enda")
+            case "5":
+                print("Denne funksjonaliteten støttes ikke enda")
+            case _:
+                print("Ugyldig input")
+
+
 # Task c)
-def get_togrute_info():
+def get_togrute_info(stasjon,day):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
-    stasjon = input ("Hvilken stasjon vil du sjekke? ")
     
     #Check if the stasjon exists by reading from the TABLE Stasjon
     c.execute("SELECT * FROM Stasjon WHERE navn = ?", (stasjon,))
@@ -127,20 +170,16 @@ def get_togrute_info():
         print("Stasjonen finnes ikke")
         return
     
-    #Get the ukedag from user
-    ukedag = input("Hvilken ukedag? ")
     #Check if the ukedag exists by reading from the TABLE Rutedag
-    c.execute("SELECT * FROM Rutedag WHERE ukedag = ?", (ukedag,))
+    c.execute("SELECT * FROM Rutedag WHERE ukedag = ?", (day,))
     if c.fetchone() is None:
         print("Ukedagen finnes ikke")
         return
     
-    c.execute("""SELECT RuteID FROM (RuteTabell INNER JOIN Rutedag USING (RuteID) ) WHERE RuteDag.ukedag = ? and RuteTabell.StasjonsNavn = ? """, (ukedag, stasjon))
-    
-    
+    c.execute("""SELECT RuteID FROM (RuteTabell INNER JOIN Rutedag USING (RuteID) ) WHERE RuteDag.ukedag = ? and RuteTabell.StasjonsNavn = ? """, (day, stasjon))
     ruter = c.fetchall()
 
-    print("Følgende ruter går fra", stasjon, "på", ukedag + "er:")
+    print("Følgende ruter går fra", stasjon, "på", day + "er:")
 
     for rute in ruter:
         c.execute("SELECT * FROM Rute WHERE RuteID = ?", (rute[0],))
@@ -152,17 +191,11 @@ def get_togrute_info():
 
 
 # Task d)
-def search_routes():
+def search_routes(date, stasjon1, stasjon2):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
-    date = input("Hvilken dato vil du sjekke  (YYYY-DD-MM) format? ")
     year, day, month = map(int, date.split('-'))
-    
-
-    stasjon1 = input("Fra hvilken stasjon vil du reise? ")
-    stasjon2 = input("Til hvilken stasjon vil du reise? ")
-
     stasjoner = [stasjon1, stasjon2]
     
     #Check if the stasjon exists by reading from the TABLE Stasjon
@@ -185,31 +218,30 @@ def search_routes():
     print(ruteforekomster)
 
 # Task e)
-def new_user():
+def new_user(name,email,tlf):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
+    c.execute("pragma foreign_keys = ON")
     c.execute("SELECT COUNT(*) FROM Kunde")
     antall = c.fetchone()
     newKundeNr = antall[0] + 1
 
-    print("KUNDEREGISTRERING\n")
-    navn = input("Navn: ")
-    epost = input("Epost: ")
-    tlf = input("Telefon: ")
-
-    c.execute("INSERT INTO Kunde VALUES (?,?,?,?)",(newKundeNr,epost,navn,tlf))
+    c.execute("INSERT INTO Kunde VALUES (?,?,?,?)",(newKundeNr,email,name,tlf))
     conn.commit()
     
-    print(f"Kunde {newKundeNr}: {navn}, {epost}, {tlf}")
+    print(f"Kunde {newKundeNr}: {name}, {email}, {tlf}")
 
     conn.close()
 
+# task h)
+def future_trips(kundeNr, email):
+    var = email
 
 
-    
-search_routes()
 
+
+menu()
 """ #These functions will create and add data about the Nordlandsbanen to the database
 create_db("sql_prosjektet.sql")
 init_db('sql_prosjektet.db') """
