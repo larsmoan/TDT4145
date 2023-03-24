@@ -384,11 +384,13 @@ def get_available_seats(startStasjon, endeStasjon, dato):
             FROM Sete
             WHERE (OperatorNavn, VognID, SeteID) NOT IN (SELECT OperatorNavn, VognID, SeteID 
                 FROM Sete NATURAL JOIN SitteBillett NATURAL JOIN BillettOmfatter
-                WHERE ForekomstID = {ruteforekomst})
+                WHERE ForekomstID = {ruteforekomst}
+                AND DelstrekningsID IN ({", ".join(delstrekningsIDer)}))
             AND (OperatorNavn, VognID, SeteID) IN (SELECT OperatorNavn, VognID, SeteID 
                 FROM Rute NATURAL JOIN RuteForekomst NATURAL JOIN DelAvTog
                 WHERE ForekomstID = {ruteforekomst})
         """
+        print(ledige_seter_sporring)
         c.execute(ledige_seter_sporring)
         ledige_seter = c.fetchall()
         ruteforekomstDict[ruteforekomst] = ledige_seter
@@ -403,6 +405,7 @@ def get_available_seats(startStasjon, endeStasjon, dato):
             ledigeSeterString += f"Operatør: {sete[0]}, Vogn:{sete[1]}, Sete:{sete[2]}\n"
         print(ledigeSeterString)
     conn.close()
+    print(ruteforekomstDict)
     return ruteforekomstDict
 
 def get_available_beds(startStasjon, endeStasjon, dato):
@@ -464,9 +467,9 @@ get_available_seats("Fauske","Mo i Rana" ,"2023-03-04")
 get_available_seats("Mo i Rana","Trondheim" ,"2023-03-04")
 get_available_seats("Halla","NTNU" ,"2023-03-04")
 
-# print("Her kommer Senger\n\n\n\n")
-# get_available_beds("Mo i Rana","Mosjøen" ,"2023-03-04")
-# get_available_beds("Mo i Rana","Trondheim" ,"2023-03-04")
-# get_available_beds("Mo i Rana","Mosjøen" ,"2023-04-04")
-# get_available_beds("Mo i Rana","Trondheim" ,"2023-04-04")
+print("Her kommer Senger\n\n\n\n")
+get_available_beds("Mo i Rana","Mosjøen" ,"2023-03-04")
+get_available_beds("Mo i Rana","Trondheim" ,"2023-03-04")
+get_available_beds("Mo i Rana","Mosjøen" ,"2023-04-04")
+get_available_beds("Mo i Rana","Trondheim" ,"2023-04-04")
 
