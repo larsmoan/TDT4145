@@ -439,6 +439,8 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
         
         #get the current date and time
         now = dt.now()
+
+      
         current_time = now.strftime("%H:%M:%S")
         current_date = now.strftime("%Y-%m-%d")
         max_ordrenr = f"SELECT Count(*) FROM KundeOrdre"
@@ -455,15 +457,13 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
         
         valg = input("Hva slags billett ønsker du å kjøpe? ")
         
-    
+        
         if valg == "1":
             biletter_dict = get_available_seats(startstasjon, endestasjon, dato)
             if not biletter_dict:
                 return
-            #Spør hvilken rute de ønsker å kjøpe billett på
-            rutestring = f"Hvilken ruteforekomst ønsker du å kjøpe billett på?"
-
-            ruteforekomst = input(rutestring)
+            
+            ruteforekomst = input("Hvilken ruteforekomst ønsker du å kjøpe billett til?")
 
             for i in range(antallbiletter):
                 valg = input("Hvilken vogn, sete ønsker du? Skriv inn på følgende vis: Vogn, Sete ")
@@ -487,11 +487,20 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
                     ##Legge inn i sittebilett
                     sittebillett_insert = f"INSERT INTO SitteBillett VALUES ({ruteforekomst}, {id}, '{operator}', '{vogn}', '{sete}')"
                     c.execute(sittebillett_insert)
-                    conn.commit()
+                    
+                    #Fikse kundehos her
+                    kundehos_query = f"SELECT * FROM KundeHos WHERE KundeNr = {kundenr} AND OperatorNavn = '{operator}'"
+                    #Check number of rows in kundehos
+                    c.execute(kundehos_query)
+                    kundehos = c.fetchall()
+                    if not kundehos:
+                        #Add the customer to the operator
+                        kundehos_insert = f"INSERT INTO KundeHos VALUES ({kundenr}, '{operator}')"
+                        c.execute(kundehos_insert)
 
                    
 
-                    c.execute(f"INSERT INTO Bestilling VALUES ({max_ordrenr}, {ruteforekomst}, {id})")
+                    c.execute(f"INSERT INTO Bestilling VALUES ({max_ordrenr+1}, {ruteforekomst}, {id})")
 
                     #Få alle delstrekningsIDer denne biletten gjelder for
                     delstrekningsIDer, retning = get_delstrekningsIDer(startstasjon, endestasjon)
@@ -499,7 +508,7 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
                         ##Her skal det legges inn i Bilettomfatter
                         bilettomfatter_insert = f"INSERT INTO BillettOmfatter VALUES ({ruteforekomst}, {id}, {int(delstrekningsID)})"
                         c.execute(bilettomfatter_insert)
-                    conn.commit()
+                print("Gratulerer med vel gjennomført kjøp av sittebillett")
         elif valg == "2":
             ##Fiks sengene 
             biletter_dict = get_available_beds(startstasjon, endestasjon, dato)
@@ -525,6 +534,16 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
                     sovebillett_insert = f"INSERT INTO SoveBillett VALUES ({ruteforekomst}, {id}, '{operator}', '{vogn}','{seng}')"
                     c.execute(sovebillett_insert)
 
+                    #Fikse kundehos her
+                    kundehos_query = f"SELECT * FROM KundeHos WHERE KundeNr = {kundenr} AND OperatorNavn = '{operator}'"
+                    #Check number of rows in kundehos
+                    c.execute(kundehos_query)
+                    kundehos = c.fetchall()
+                    if not kundehos:
+                        #Add the customer to the operator
+                        kundehos_insert = f"INSERT INTO KundeHos VALUES ({kundenr}, '{operator}')"
+                        c.execute(kundehos_insert)
+
                     ##Legge inn i bestilling
                     c.execute("SELECT Count(*) FROM Bestilling")
                     
@@ -546,6 +565,7 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
         
                         bilettomfatter_insert = f"INSERT INTO BillettOmfatter VALUES ({ruteforekomst}, {id}, {int(delstrekningsID[0][0])})"
                         c.execute(bilettomfatter_insert)
+                print("Gratulerer med vel gjennomført kjøp av sovebillett")
         conn.commit()
         conn.close()
     except Exception as e:
@@ -568,6 +588,7 @@ def menu():
     print("4. Kjøp billetter til en togrute")
     print("5. Vis fremtidige reiser\n")
     num = -1
+
     while num != 0:
         match num:
             case "0":
@@ -610,7 +631,7 @@ def menu():
             case "-1":
                 print("Ugyldig input")
 
-
+        num = input("Velg et alternativ: ")
 
 
 if __name__ == "__main__":
