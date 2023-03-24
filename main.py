@@ -313,9 +313,90 @@ def new_user(name, email, tlf):
 
 # task h)
 
+def get_seat(billettID,forekomstID):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
 
-def future_trips(kundeNr, email):
-    var = email
+    seteInfo = c.execute(
+        f"""
+        SELECT SitteBillett.SeteID,SitteBillett.VognID,SitteBillet.OperatorNavn,DelAvTog.NummerIRekke
+        FROM ((SitteBillett NATURAL JOIN RuteForekomst) NATURAL JOIN Rute) INNER JOIN DelAvTog USING(TogID,OperatorNavn)
+        WHERE billettID = '{billettID}' AND ForekomstID = '{forekomstID}'
+        """)
+    
+    res = seteInfo.fetchall()
+    conn.close()
+    return res
+
+def get_bed(billettID,forekomstID):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    seteInfo = c.execute(
+        f"""
+        SELECT SengeID,VognID,OperatorNavn
+        FROM SoveBillett NATURAL JOIN 
+        WHERE billettID = '{billettID}' AND ForekomstID = '{forekomstID}'
+        """)
+    
+    res = seteInfo.fetchall()
+    conn.close()
+    return res
+
+def get_ticket(email):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    ticketInfo = c.execute(
+        f"""
+        SELECT DISTINCT Bestilling.OrdreNr,Bestilling.ForekomstID,Bestilling.billettID
+        FROM ((Kunde NATURAL JOIN KundeOrdre) NATURAL JOIN Bestilling)
+        WHERE Kunde.epostAddr = '{email}'
+        """)
+    res = ticketInfo.fetchall()
+    conn.close()
+    return res
+
+def get_rute_info(email):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    tripInfo = []
+    for ticket in get_ticket(email):
+        res = c.execute(f"""
+        SELECT Rute.RuteID, RuteForekomst.dato
+        FROM RuteForekomst NATURAL JOIN Rute
+        WHERE RuteForekomst.ForekomstID = '{ticket[1]}'
+        ORDER BY RuteForekomst.dato
+        """)
+        tripInfo.append(res.fetchone())
+    
+    conn.close()
+
+    return tripInfo
+
+
+def future_trips(email):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    print("Her er dine billetter:\n")
+    
+    for ticket in get_ticket(email):
+        print(f"{ticket[1]}: Rute nummer {ticket[0]} i vogn {get_seat(ticket[])}")
+        beds.append(get_seat(ticket[2][1]))
+        seats.append(get_bed(ticket[2][1]))
+    
+    print
+
+    
+    customer = c.execute(
+    f"""
+    SELECT DISTINCT Kunde.KundeNr, 
+    FORM (((Kunde NATURAL JOIN KundeOrdre) NATURAL JOIN Bestilling) NATURAL JOIN BillettOmfatter) NATURAL JOIN RuteForekomst) NATURAL JOIN Delstrekning) NATURAL JOIN Rute)
+    WHERE Kunde.epostAddr = '{email}'
+    """
+    )
 
 # task g)
 
@@ -502,4 +583,4 @@ def book_seat():
 CREATE_db("sql_prosjektet.sql")
 init_db('sql_prosjektet.db')
 
-search_routes("2023-03-04", "Trondheim", "Bodø")
+get_seat(1,1)
