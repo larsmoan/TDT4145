@@ -320,7 +320,7 @@ def get_seat(billettID,forekomstID):
     seteInfo = c.execute(
         f"""
         SELECT SitteBillett.SeteID,SitteBillett.VognID,SitteBillet.OperatorNavn,DelAvTog.NummerIRekke
-        FROM ((SitteBillett NATURAL JOIN RuteForekomst) NATURAL JOIN Rute) INNER JOIN DelAvTog USING(TogID,OperatorNavn)
+        FROM SitteBillett INNER JOIN DelAvTog USING(VognID,OperatorNavn)
         WHERE billettID = '{billettID}' AND ForekomstID = '{forekomstID}'
         """)
     
@@ -334,8 +334,8 @@ def get_bed(billettID,forekomstID):
 
     seteInfo = c.execute(
         f"""
-        SELECT SengeID,VognID,OperatorNavn
-        FROM SoveBillett NATURAL JOIN 
+        SELECT SoveBillett.SengeID,SoveBillett.VognID,SoveBillett.OperatorNavn,DelAvTog.NummerIRekke
+        FROM SoveBillett INNER JOIN DelAvTog USING(VognID,OperatorNavn)
         WHERE billettID = '{billettID}' AND ForekomstID = '{forekomstID}'
         """)
     
@@ -361,15 +361,22 @@ def get_rute_info(email):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
+    sit_q = c.execute("""
+    SELECT ALL
+    """)
+
     tripInfo = []
     for ticket in get_ticket(email):
-        res = c.execute(f"""
+        query = c.execute(f"""
         SELECT Rute.RuteID, RuteForekomst.dato
         FROM RuteForekomst NATURAL JOIN Rute
         WHERE RuteForekomst.ForekomstID = '{ticket[1]}'
         ORDER BY RuteForekomst.dato
         """)
-        tripInfo.append(res.fetchone())
+        res = query.fetchone()
+        if res[2] in
+        ele = (get_seat(res[2],res[1]),res)
+        tripInfo.append(ele)
     
     conn.close()
 
@@ -380,9 +387,15 @@ def future_trips(email):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
+    rute_info = get_rute_info(email)
+    seat_info = get_seat()
+    bed_info = get_bed()
+    info = []
+
     print("Her er dine billetter:\n")
     
-    for ticket in get_ticket(email):
+    for i in range(len(get_rute_info(email))):
+        if i == 
         print(f"{ticket[1]}: Rute nummer {ticket[0]} i vogn {get_seat(ticket[])}")
         beds.append(get_seat(ticket[2][1]))
         seats.append(get_bed(ticket[2][1]))
