@@ -289,7 +289,7 @@ def get_seat(billettID,forekomstID):
 
     seteInfo = c.execute(
         f"""
-        SELECT SitteBillett.SeteID,SitteBillett.VognID,SitteBillet.OperatorNavn,DelAvTog.NummerIRekke
+        SELECT SitteBillett.SeteID,SitteBillett.VognID,SitteBillett.OperatorNavn,DelAvTog.NummerIRekke
         FROM SitteBillett INNER JOIN DelAvTog USING(VognID,OperatorNavn)
         WHERE billettID = '{billettID}' AND ForekomstID = '{forekomstID}'
         """)
@@ -343,10 +343,10 @@ def get_rute_info(email):
         WHERE RuteForekomst.ForekomstID = '{ticket[1]}'
         ORDER BY RuteForekomst.dato
         """)
-        res = query.fetchone()
-        if res[2] in
+        """ res = query.fetchone()
+        if res[2] in 
         ele = (get_seat(res[2],res[1]),res)
-        tripInfo.append(ele)
+        tripInfo.append(ele) """
     
     conn.close()
 
@@ -365,12 +365,11 @@ def future_trips(email):
     print("Her er dine billetter:\n")
     
     for i in range(len(get_rute_info(email))):
-        if i == 
-        print(f"{ticket[1]}: Rute nummer {ticket[0]} i vogn {get_seat(ticket[])}")
-        beds.append(get_seat(ticket[2][1]))
-        seats.append(get_bed(ticket[2][1]))
+        if i == True:
+            print(f"{ticket[1]}: Rute nummer {ticket[0]} i vogn {get_seat(ticket[0])}")
+            beds.append(get_seat(ticket[2][1]))
+            seats.append(get_bed(ticket[2][1]))
     
-    print
 
     
     customer = c.execute(
@@ -378,8 +377,7 @@ def future_trips(email):
     SELECT DISTINCT Kunde.KundeNr, 
     FORM (((Kunde NATURAL JOIN KundeOrdre) NATURAL JOIN Bestilling) NATURAL JOIN BillettOmfatter) NATURAL JOIN RuteForekomst) NATURAL JOIN Delstrekning) NATURAL JOIN Rute)
     WHERE Kunde.epostAddr = '{email}'
-    """
-    )
+    """)
 
 
 
@@ -756,4 +754,7 @@ if __name__ == "__main__":
     #CREATE_db("sql_prosjektet.sql")
     #init_db('sql_prosjektet.db')
 
-    menu()
+    #menu()
+
+    res = get_seat(1, 3)
+    print(res)
