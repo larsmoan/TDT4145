@@ -669,7 +669,7 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
                     c.execute("SELECT Count(*) FROM Bestilling")
                     
                     max_bestilling = c.fetchall()[0][0]
-                    c.execute(f"INSERT INTO Bestilling VALUES ({max_bestilling+1}, {ruteforekomst}, {id})")
+                    c.execute(f"INSERT INTO Bestilling VALUES ({max_ordrenr+1}, {ruteforekomst}, {id})")
                     
                     #Få alle delstrekningsIDer denne biletten gjelder for
 
@@ -754,7 +754,9 @@ if __name__ == "__main__":
     #CREATE_db("sql_prosjektet.sql")
     #init_db('sql_prosjektet.db')
 
-    #menu()
+    menu()
 
     res = get_seat(1, 3)
     print(res)
+    res2 = get_bed("mail", 2)
+    print(res2)
