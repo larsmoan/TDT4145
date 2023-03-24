@@ -171,8 +171,6 @@ def init_db(db_filename):
     conn.close()
 
 
-
-
 # Task c)
 def get_togrute_info(stasjon,day):
     conn = sqlite3.connect('sql_prosjektet.db')
