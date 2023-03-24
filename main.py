@@ -1,12 +1,12 @@
 import sqlite3
 import os
+from datetime import datetime, timedelta
 
-import datetime
 
 def CREATE_db(filename):
-    #Just a dummy name for the database
+    # Just a dummy name for the database
     db_filename = filename[:-4] + '.db'
-    ##Remove any existing database -  makes it easier to run the script multiple times
+    # Remove any existing database -  makes it easier to run the script multiple times
     try:
         os.remove(db_filename)
     except OSError:
@@ -20,7 +20,7 @@ def CREATE_db(filename):
 
 
 def init_db(db_filename):
-    #Skal legge inn nødvendig data som ikke trenger å programmeres direkte
+    # Skal legge inn nødvendig data som ikke trenger å programmeres direkte
     conn = sqlite3.connect(db_filename)
     c = conn.cursor()
 
@@ -91,7 +91,7 @@ def init_db(db_filename):
                             (3, 'Nordlandsbanen', 'Mosjøen', 'Mo i Rana', 90, 1),
                             (4, 'Nordlandsbanen', 'Mo i Rana', 'Fauske', 170, 1),
                             (5, 'Nordlandsbanen', 'Fauske', 'Bodø', 60, 1)"""
-    
+
     ruteforekomst_query = """INSERT INTO RuteForekomst (ForekomstID, RuteID, dato) VALUES 
                             (1, 1, '2023-03-04'),
                             (2, 2, '2023-03-04'),
@@ -100,12 +100,12 @@ def init_db(db_filename):
                             (5, 2, '2023-04-04'),
                             (6, 3, '2023-04-04')
                             """
-    
+
     inngaarIrute_query = """INSERT INTO InngaarIRute (RuteID, DelstrekningsID) VALUES
                             (1, 1),(1, 2),(1, 3),(1, 4),(1, 5),
                             (2, 1),(2, 2),(2, 3),(2, 4),(2, 5),
                             (3, 1),(3, 2),(3, 3)"""
-    
+
     c.execute(stasjons_query)
     c.execute(tog_query)
     c.execute(rute_query)
@@ -123,7 +123,7 @@ def init_db(db_filename):
 
     c.execute(inngaarIrute_query)
     c.execute("""SELECT * FROM SitteVogn""")
-    sete_query ="INSERT INTO Sete (OperatorNavn, VognID, SeteID) VALUES "
+    sete_query = "INSERT INTO Sete (OperatorNavn, VognID, SeteID) VALUES "
     sitteVogner = c.fetchall()
     for vognNr, vogn in enumerate(sitteVogner):
         operator = vogn[0]
@@ -132,13 +132,13 @@ def init_db(db_filename):
         seterPerRad = vogn[3]
         for seteID in range(antallRader*seterPerRad):
             if (seteID == 0) and (vognNr == 0):
-                sete_query+= f"('{operator}',{vognID},{seteID+1})"
+                sete_query += f"('{operator}',{vognID},{seteID+1})"
             else:
-                sete_query+= f", ('{operator}',{vognID},{seteID+1})"
+                sete_query += f", ('{operator}',{vognID},{seteID+1})"
     c.execute(sete_query)
 
     c.execute("""SELECT * FROM SoveVogn""")
-    seng_query ="INSERT INTO Seng (OperatorNavn, VognID, SengeID, KupeNr) VALUES "
+    seng_query = "INSERT INTO Seng (OperatorNavn, VognID, SengeID, KupeNr) VALUES "
     soveVogner = c.fetchall()
     for vognNr, vogn in enumerate(soveVogner):
         sengerPrKupee = 2
@@ -146,13 +146,13 @@ def init_db(db_filename):
         vognID = vogn[1]
         antallKupeer = vogn[2]
         for sengeID in range(antallKupeer*sengerPrKupee):
-                kupeeNr = 1 + sengeID//sengerPrKupee
-                if (sengeID == 0) and (vognNr == 0):
-                    seng_query+= f"('{operator}',{vognID},{sengeID+1},{kupeeNr})"
-                else:
-                    seng_query+= f", ('{operator}',{vognID},{sengeID+1},{kupeeNr})"
+            kupeeNr = 1 + sengeID//sengerPrKupee
+            if (sengeID == 0) and (vognNr == 0):
+                seng_query += f"('{operator}',{vognID},{sengeID+1},{kupeeNr})"
+            else:
+                seng_query += f", ('{operator}',{vognID},{sengeID+1},{kupeeNr})"
     c.execute(seng_query)
-    
+
     c.execute("pragma foreign_keys = ON")
     c.execute(f"INSERT INTO Billett VALUES ({1},{1})")
     c.execute(f"INSERT INTO BillettOmfatter VALUES ({1},{1},{3})")
@@ -169,10 +169,12 @@ def init_db(db_filename):
     conn.close()
 
 # Main program to run
+
+
 def menu():
     print("Dette er en database over jernbanen i Norge\n")
     print("0. Avslutt program")
-    print("1. Finn tidspunkt på togruter som passer en stasjon en gitt ukedag")
+    print("1. Finn tidspunkt på togruter som passerer en stasjon en gitt ukedag")
     print("2. Finn togruter som går mellom to stasjoner på et tidspunkt og dag")
     print("3. Registrer ny kunde")
     print("4. Kjøp billetter til en togrute")
@@ -189,15 +191,15 @@ def menu():
                 stasjon2 = input("Endestasjon: ")
                 search_routes(date, stasjon1, stasjon2)
             case "2":
-                stasjon = input ("Hvilken stasjon vil du sjekke? ")
+                stasjon = input("Hvilken stasjon vil du sjekke? ")
                 ukedag = input("Hvilken ukedag? ")
-                get_togrute_info(stasjon,ukedag)
+                get_togrute_info(stasjon, ukedag)
             case "3":
                 print("KUNDEREGISTRERING\n")
                 navn = input("Navn: ")
                 epost = input("Epost: ")
                 tlf = input("Telefon: ")
-                new_user(navn,epost,tlf)
+                new_user(navn, epost, tlf)
             case "4":
                 print("Denne funksjonaliteten støttes ikke enda")
             case "5":
@@ -207,22 +209,22 @@ def menu():
 
 
 # Task c)
-def get_togrute_info(stasjon,day):
+def get_togrute_info(stasjon, day):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
-    
-    #Check if the stasjon exists by reading from the TABLE Stasjon
+
+    # Check if the stasjon exists by reading from the TABLE Stasjon
     c.execute("SELECT * FROM Stasjon WHERE navn = ?", (stasjon,))
     if c.fetchone() is None:
         print("Stasjonen finnes ikke")
         return
-    
-    #Check if the ukedag exists by reading from the TABLE Rutedag
+
+    # Check if the ukedag exists by reading from the TABLE Rutedag
     c.execute("SELECT * FROM Rutedag WHERE ukedag = ?", (day,))
     if c.fetchone() is None:
         print("Ukedagen finnes ikke")
         return
-    
+
     c.execute("""SELECT RuteID FROM (RuteTabell INNER JOIN Rutedag USING (RuteID) ) WHERE RuteDag.ukedag = ? and RuteTabell.StasjonsNavn = ? """, (day, stasjon))
     ruter = c.fetchall()
 
@@ -231,41 +233,67 @@ def get_togrute_info(stasjon,day):
     for rute in ruter:
         c.execute("SELECT * FROM Rute WHERE RuteID = ?", (rute[0],))
         ruteinfo = c.fetchall()
-        print("Rute: ", ruteinfo[0][1], ruteinfo[0][2], ruteinfo[0][3], ruteinfo[0][4], ruteinfo[0][5])
-
+        print("Rute: ", ruteinfo[0][1], ruteinfo[0][2],
+              ruteinfo[0][3], ruteinfo[0][4], ruteinfo[0][5])
 
     conn.close()
+
+
+def add_one_day(date_str):
+    date = datetime.strptime(date_str, "%Y-%d-%m")
+
+    new_date = date + timedelta(days=1)
+
+    if new_date.month != date.month:
+        new_date = new_date.replace(day=1)
+    if new_date.year != date.year:
+        new_date = new_date.replace(month=1, day=1)
+
+    new_date_str = new_date.strftime("%Y-%d-%m")
+
+    return new_date_str
 
 
 # Task d)
-def search_routes(date, stasjon1, stasjon2):
+def search_routes(date_str, stasjon1, stasjon2):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
-    year, day, month = map(int, date.split('-'))
-    stasjoner = [stasjon1, stasjon2]
-    
-    #Check if the stasjon exists by reading from the TABLE Stasjon
-    c.execute("SELECT Stasjon.Navn FROM Stasjon")
-    stasjonsnavn = c.fetchall()
+    date_str2 = add_one_day(date_str)
 
-    for stasjon in stasjoner:
-        if (stasjon,) not in stasjonsnavn:
-            print("Stasjonen finnes ikke")
-            return
-    
-    #Find all routes from stasjon1 to stasjon2 on the given date
+    # Check if the stasjon exists by reading from the TABLE Stasjon
+    c.execute(f"SELECT * FROM Rute WHERE startStasjon = '{stasjon1}'")
+    ret1 = c.fetchone()
+    if ret1 is None:
+        print("Oppgitt startsasjon er ikke en startstasjon blant tilgjengelige togruter.")
+        return
+    c.execute(f"SELECT * FROM Rute WHERE endeStasjon = '{stasjon2}'")
+    ret2 = c.fetchone()
+    if ret2 is None:
+        print("Oppgitt endestasjon er ikke en endestasjon blant tilgjengelige togruter.")
+        return
 
-    #first find all ruteforekomster
-    conn.execute("SELECT * FROM RuteForekomst WHERE dato = ?", (date,))
-    ruteforekomster = c.fetchall()
+    # Find all routes from stasjon1 to stasjon2 on the given date
+
+    # first find all ruteforekomster
+    c.execute(f"""SELECT DISTINCT RuteID,startStasjon,endeStasjon,dato,tid 
+                FROM (RuteForekomst NATURAL JOIN Rute) NATURAL JOIN RuteTabell
+                WHERE (RuteForekomst.dato = '{date_str}' OR RuteForekomst.dato = '{date_str2}') AND RuteTabell.StasjonsNavn = '{stasjon1}' AND Rute.endeStasjon = '{stasjon2}'
+                ORDER BY RuteForekomst.dato,RuteTabell.tid""")
+    rows = c.fetchall()
+    if not rows:
+        print("Togruten går ikke den ønskede dagen eller neste")
+    else:
+        for row in rows:
+            print(f"Rute {row[0]}: {row[1]}-{row[2]} {row[3]} kl. {row[4]}")
 
     conn.close()
-    
-    print(ruteforekomster)
+
 
 # Task e)
-def new_user(name,email,tlf):
+
+
+def new_user(name, email, tlf):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
@@ -274,20 +302,24 @@ def new_user(name,email,tlf):
     antall = c.fetchone()
     newKundeNr = antall[0] + 1
 
-
-    c.execute("INSERT INTO Kunde VALUES (?,?,?,?)",(newKundeNr,email,name,tlf))
+    c.execute("INSERT INTO Kunde VALUES (?,?,?,?)",
+              (newKundeNr, email, name, tlf))
 
     conn.commit()
-    
+
     print(f"Kunde {newKundeNr}: {name}, {email}, {tlf}")
 
     conn.close()
 
 # task h)
+
+
 def future_trips(kundeNr, email):
     var = email
 
 # task g)
+
+
 def get_delstrekningsIDer(startStasjon, endeStasjon):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -296,7 +328,9 @@ def get_delstrekningsIDer(startStasjon, endeStasjon):
     alle_delstrekninger = c.fetchall()
     delstrekningsIDer = []
     retning = "MED"
-    class Found(Exception): pass
+
+    class Found(Exception):
+        pass
     try:
         ny_startStasjon = startStasjon
         for iteration in range(len(alle_delstrekninger)):
@@ -324,7 +358,8 @@ def get_delstrekningsIDer(startStasjon, endeStasjon):
                         raise Found
                     ny_startStasjon = slutt
 
-        print(f"There is no way to get from {startStasjon} to {endeStasjon}. Sorry!\n")
+        print(
+            f"There is no way to get from {startStasjon} to {endeStasjon}. Sorry!\n")
         conn.close()
         return [], "MED"
     except Found:
@@ -344,6 +379,7 @@ def get_ruter(delstrekningsIDer, retning, dato):
     conn.close()
     return mulige_ruter
 
+
 def get_ruteforekomster(ruter, dato):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -355,32 +391,34 @@ def get_ruteforekomster(ruter, dato):
     mulige_ruteforekomster = [str(Rute[0]) for Rute in c.fetchall()]
     conn.close()
     return mulige_ruteforekomster
-  
+
 
 def get_available_seats(startStasjon, endeStasjon, dato):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
-    delstrekningsIDer, retning = get_delstrekningsIDer(startStasjon,endeStasjon)
+    delstrekningsIDer, retning = get_delstrekningsIDer(
+        startStasjon, endeStasjon)
     if not delstrekningsIDer:
         return
-    
-    mulige_ruter = get_ruter(delstrekningsIDer,retning,dato)
+
+    mulige_ruter = get_ruter(delstrekningsIDer, retning, dato)
     if not mulige_ruter:
         print(f"No routes exist between {startStasjon} and {endeStasjon}")
         return
-    
+
     mulige_ruteforekomster = get_ruteforekomster(mulige_ruter, dato)
     if not mulige_ruteforekomster:
-        print(f"There exists no routes between the given stations on the date: {dato}\n")
+        print(
+            f"There exists no routes between the given stations on the date: {dato}\n")
         return
-    
+
     # sjekk om det er ledige sittebilletter på denne ruteforekomsten denne dagen
-    
+
     ruteforekomstDict = {}
     for ruteforekomst in mulige_ruteforekomster:
         ledige_seter_sporring = \
-        f"""SELECT DISTINCT OperatorNavn, VognID, SeteID
+            f"""SELECT DISTINCT OperatorNavn, VognID, SeteID
             FROM Sete
             WHERE (OperatorNavn, VognID, SeteID) NOT IN (SELECT OperatorNavn, VognID, SeteID 
                 FROM Sete NATURAL JOIN SitteBillett NATURAL JOIN BillettOmfatter
@@ -394,13 +432,12 @@ def get_available_seats(startStasjon, endeStasjon, dato):
         c.execute(ledige_seter_sporring)
         ledige_seter = c.fetchall()
         ruteforekomstDict[ruteforekomst] = ledige_seter
-    
-    
+
     for ruteforekomst, seter in ruteforekomstDict.items():
         klokkeslett_sporring = f"SELECT DISTINCT tid FROM RuteTabell NATURAL JOIN RuteForekomst WHERE ForekomstID = {ruteforekomst} AND StasjonsNavn = '{startStasjon}'"""
         c.execute(klokkeslett_sporring)
         klokkeslett = c.fetchall()[0][0]
-        ledigeSeterString =f"\nLedige seter fra {startStasjon} til {endeStasjon} kl: {klokkeslett} den {dato}:\n"
+        ledigeSeterString = f"\nLedige seter fra {startStasjon} til {endeStasjon} kl: {klokkeslett} den {dato}:\n"
         for sete in seter:
             ledigeSeterString += f"Operatør: {sete[0]}, Vogn:{sete[1]}, Sete:{sete[2]}\n"
         print(ledigeSeterString)
@@ -408,29 +445,32 @@ def get_available_seats(startStasjon, endeStasjon, dato):
     print(ruteforekomstDict)
     return ruteforekomstDict
 
+
 def get_available_beds(startStasjon, endeStasjon, dato):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
-    delstrekningsIDer, retning = get_delstrekningsIDer(startStasjon,endeStasjon)
+    delstrekningsIDer, retning = get_delstrekningsIDer(
+        startStasjon, endeStasjon)
     if not delstrekningsIDer:
         return
-    
-    mulige_ruter = get_ruter(delstrekningsIDer,retning,dato)
+
+    mulige_ruter = get_ruter(delstrekningsIDer, retning, dato)
     if not mulige_ruter:
         print(f"No routes exist between {startStasjon} and {endeStasjon}")
         return
-    
+
     mulige_ruteforekomster = get_ruteforekomster(mulige_ruter, dato)
     if not mulige_ruteforekomster:
-        print(f"There exists no routes between the given stations on the date: {dato}\n")
+        print(
+            f"There exists no routes between the given stations on the date: {dato}\n")
         return
-    
+
     ruteforekomstDict = {}
     for ruteforekomst in mulige_ruteforekomster:
 
         ledige_senger_sporring = \
-                f"""SELECT DISTINCT Seng.OperatorNavn, Seng.VognID, Seng.SengeID, KupeNr
+            f"""SELECT DISTINCT Seng.OperatorNavn, Seng.VognID, Seng.SengeID, KupeNr
         FROM Seng
         WHERE KupeNr NOT IN (SELECT KupeNr FROM Seng NATURAL JOIN SoveBillett NATURAL JOIN RuteForekomst WHERE ForekomstID = {ruteforekomst})
         """
@@ -441,35 +481,25 @@ def get_available_beds(startStasjon, endeStasjon, dato):
             klokkeslett_sporring = f"SELECT DISTINCT tid FROM RuteTabell NATURAL JOIN RuteForekomst WHERE ForekomstID = {ruteforekomst} AND StasjonsNavn = '{startStasjon}'"""
             c.execute(klokkeslett_sporring)
             klokkeslett = c.fetchall()[0][0]
-            ledigeSengerString =f"\nLedige senger fra {startStasjon} til {endeStasjon} kl: {klokkeslett} den {dato}:\n"
+            ledigeSengerString = f"\nLedige senger fra {startStasjon} til {endeStasjon} kl: {klokkeslett} den {dato}:\n"
             for seng in senger:
                 ledigeSengerString += f"Operatør: {seng[0]}, Vogn:{seng[1]}, Kupee:{seng[3]}, Seng:{seng[2]}\n"
             print(ledigeSengerString)
         return ruteforekomstDict
     conn.close()
+
+
 def book_bed():
     pass
+
 
 def book_seat():
     pass
 
 
-
-#menu()
-#These functions will create and add data about the Nordlandsbanen to the database
+# menu()
+# These functions will create and add data about the Nordlandsbanen to the database
 CREATE_db("sql_prosjektet.sql")
 init_db('sql_prosjektet.db')
 
-get_available_seats("Mo i Rana", "Fauske", "2023-03-04")
-get_available_seats("Mosjøen", "Fauske", "2023-03-04")
-get_available_seats("Mosjøen", "Fauske", "2023-04-04")
-get_available_seats("Fauske","Mo i Rana" ,"2023-03-04")
-get_available_seats("Mo i Rana","Trondheim" ,"2023-03-04")
-get_available_seats("Halla","NTNU" ,"2023-03-04")
-
-print("Her kommer Senger\n\n\n\n")
-get_available_beds("Mo i Rana","Mosjøen" ,"2023-03-04")
-get_available_beds("Mo i Rana","Trondheim" ,"2023-03-04")
-get_available_beds("Mo i Rana","Mosjøen" ,"2023-04-04")
-get_available_beds("Mo i Rana","Trondheim" ,"2023-04-04")
-
+search_routes("2023-03-04", "Trondheim", "Bodø")
