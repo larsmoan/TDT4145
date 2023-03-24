@@ -332,8 +332,10 @@ def get_rute_info(email):
     c = conn.cursor()
 
     sit_q = c.execute("""
-    SELECT ALL
+    SELECT billettID 
+    FROM SitteBillett
     """)
+    sit_q_res = sit_q.fetchall()
 
     tripInfo = []
     for ticket in get_ticket(email):
@@ -343,17 +345,24 @@ def get_rute_info(email):
         WHERE RuteForekomst.ForekomstID = '{ticket[1]}'
         ORDER BY RuteForekomst.dato
         """)
+        # Sjekker om billettID tilhører en sittebillett, i så fall lages en ny tuppel ele som inneholder
+        # setet (seteID, vognID, operatørNavn) og vognNr i det første del, og ruteID og forekomsDato i andre del 
         res = query.fetchone()
-        if res[2] in
-        ele = (get_seat(res[2],res[1]),res)
-        tripInfo.append(ele)
-    
+        if res[2] in sit_q_res:
+            ele = (get_seat(res[2],res[1]),res)
+            tripInfo.append(ele)
+        else:
+            ele = (get_bed(res[2],res[1]),res)
+            tripInfo.append(ele)
+        
+
     conn.close()
 
     return tripInfo
 
 
-def future_trips(email):
+    """ 
+    def future_trips(email):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
@@ -374,12 +383,12 @@ def future_trips(email):
 
     
     customer = c.execute(
-    f"""
+    f'''
     SELECT DISTINCT Kunde.KundeNr, 
     FORM (((Kunde NATURAL JOIN KundeOrdre) NATURAL JOIN Bestilling) NATURAL JOIN BillettOmfatter) NATURAL JOIN RuteForekomst) NATURAL JOIN Delstrekning) NATURAL JOIN Rute)
     WHERE Kunde.epostAddr = '{email}'
+    )'''
     """
-    )
 
 
 
