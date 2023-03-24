@@ -1,7 +1,7 @@
 import sqlite3
 import os
 import datetime 
-from datetime import datetime as dt
+from datetime import datetime, timedelta
 
 
 
@@ -201,33 +201,60 @@ def get_togrute_info(stasjon,day):
 
     conn.close()
 
+def add_one_day(date_str):
+    date = datetime.strptime(date_str, "%Y-%d-%m")
+
+    new_date = date + timedelta(days=1)
+
+    if new_date.month != date.month:
+        new_date = new_date.replace(day=1)
+    if new_date.year != date.year:
+        new_date = new_date.replace(month=1, day=1)
+
+    new_date_str = new_date.strftime("%Y-%d-%m")
+
+    return new_date_str
+
 
 # Task d)
-def search_routes(date, stasjon1, stasjon2):
+def search_routes(date_str, stasjon1, stasjon2):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
-    year, day, month = map(int, date.split('-'))
-    stasjoner = [stasjon1, stasjon2]
-    
-    #Check if the stasjon exists by reading from the TABLE Stasjon
-    c.execute("SELECT Stasjon.Navn FROM Stasjon")
-    stasjonsnavn = c.fetchall()
+    date_str2 = add_one_day(date_str)
 
-    for stasjon in stasjoner:
-        if (stasjon,) not in stasjonsnavn:
-            print("Stasjonen finnes ikke")
-            return
-    
-    #Find all routes from stasjon1 to stasjon2 on the given date
+    # Check if the stasjon exists by reading from the TABLE Stasjon
+    c.execute(f"SELECT * FROM Rute WHERE startStasjon = '{stasjon1}'")
+    ret1 = c.fetchone()
+    if ret1 is None:
+        print("Oppgitt startsasjon er ikke en startstasjon blant tilgjengelige togruter.")
+        return
+    c.execute(f"SELECT * FROM Rute WHERE endeStasjon = '{stasjon2}'")
+    ret2 = c.fetchone()
+    if ret2 is None:
+        print("Oppgitt endestasjon er ikke en endestasjon blant tilgjengelige togruter.")
+        return
 
-    #first find all ruteforekomster
-    conn.execute("SELECT * FROM RuteForekomst WHERE dato = ?", (date,))
-    ruteforekomster = c.fetchall()
+    # Find all routes from stasjon1 to stasjon2 on the given date
+
+    # first find all ruteforekomster
+    c.execute(f"""SELECT DISTINCT RuteID,startStasjon,endeStasjon,dato,tid 
+                FROM (RuteForekomst NATURAL JOIN Rute) NATURAL JOIN RuteTabell
+                WHERE (RuteForekomst.dato = '{date_str}' OR RuteForekomst.dato = '{date_str2}') AND RuteTabell.StasjonsNavn = '{stasjon1}' AND Rute.endeStasjon = '{stasjon2}'
+                ORDER BY RuteForekomst.dato,RuteTabell.tid""")
+    rows = c.fetchall()
+    if not rows:
+        print("Togruten går ikke den ønskede dagen eller neste")
+    else:
+        for row in rows:
+            print(f"Rute {row[0]}: {row[1]}-{row[2]} {row[3]} kl. {row[4]}")
 
     conn.close()
-    
-    print(ruteforekomster)
+
+
+# Task e)
+
+
 
 # Task e)
 def new_user(name,email,tlf):
@@ -255,8 +282,93 @@ def new_user(name,email,tlf):
     conn.close()
 
 # task h)
-def future_trips(kundeNr, email):
-    var = email
+
+def get_seat(billettID,forekomstID):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    seteInfo = c.execute(
+        f"""
+        SELECT SitteBillett.SeteID,SitteBillett.VognID,SitteBillet.OperatorNavn,DelAvTog.NummerIRekke
+        FROM ((SitteBillett NATURAL JOIN RuteForekomst) NATURAL JOIN Rute) INNER JOIN DelAvTog USING(TogID,OperatorNavn)
+        WHERE billettID = '{billettID}' AND ForekomstID = '{forekomstID}'
+        """)
+    
+    res = seteInfo.fetchall()
+    conn.close()
+    return res
+
+def get_bed(billettID,forekomstID):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    seteInfo = c.execute(
+        f"""
+        SELECT SengeID,VognID,OperatorNavn
+        FROM SoveBillett NATURAL JOIN 
+        WHERE billettID = '{billettID}' AND ForekomstID = '{forekomstID}'
+        """)
+    
+    res = seteInfo.fetchall()
+    conn.close()
+    return res
+
+def get_ticket(email):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    ticketInfo = c.execute(
+        f"""
+        SELECT DISTINCT Bestilling.OrdreNr,Bestilling.ForekomstID,Bestilling.billettID
+        FROM ((Kunde NATURAL JOIN KundeOrdre) NATURAL JOIN Bestilling)
+        WHERE Kunde.epostAddr = '{email}'
+        """)
+    res = ticketInfo.fetchall()
+    conn.close()
+    return res
+
+def get_rute_info(email):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    tripInfo = []
+    for ticket in get_ticket(email):
+        res = c.execute(f"""
+        SELECT Rute.RuteID, RuteForekomst.dato
+        FROM RuteForekomst NATURAL JOIN Rute
+        WHERE RuteForekomst.ForekomstID = '{ticket[1]}'
+        ORDER BY RuteForekomst.dato
+        """)
+        tripInfo.append(res.fetchone())
+    
+    conn.close()
+
+    return tripInfo
+
+
+def future_trips(email):
+    conn = sqlite3.connect('sql_prosjektet.db')
+    c = conn.cursor()
+
+    print("Her er dine billetter:\n")
+    
+    for ticket in get_ticket(email):
+        print(f"{ticket[1]}: Rute nummer {ticket[0]} i vogn {get_seat(ticket[0])}")
+        beds.append(get_seat(ticket[2][1]))
+        seats.append(get_bed(ticket[2][1]))
+    
+    print
+
+    
+    customer = c.execute(
+    f"""
+    SELECT DISTINCT Kunde.KundeNr, 
+    FORM (((Kunde NATURAL JOIN KundeOrdre) NATURAL JOIN Bestilling) NATURAL JOIN BillettOmfatter) NATURAL JOIN RuteForekomst) NATURAL JOIN Delstrekning) NATURAL JOIN Rute)
+    WHERE Kunde.epostAddr = '{email}'
+    """
+    )
+
+
 
 # task g)
 def get_delstrekningsIDer(startStasjon, endeStasjon):
@@ -436,7 +548,7 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
             return
         
         #get the current date and time
-        now = dt.now()
+        now = datetime.now()
 
       
         current_time = now.strftime("%H:%M:%S")
