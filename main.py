@@ -574,11 +574,6 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
 
 
 
-
-            
-
-
-
 def menu():
     print("Dette er en database over jernbanen i Norge\n")
     print("0. Avslutt program")
