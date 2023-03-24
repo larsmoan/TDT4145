@@ -289,7 +289,7 @@ def get_seat(billettID,forekomstID):
 
     seteInfo = c.execute(
         f"""
-        SELECT SitteBillett.SeteID,SitteBillett.VognID,SitteBillet.OperatorNavn,DelAvTog.NummerIRekke
+        SELECT SitteBillett.SeteID,SitteBillett.VognID,SitteBillett.OperatorNavn,DelAvTog.NummerIRekke
         FROM SitteBillett INNER JOIN DelAvTog USING(VognID,OperatorNavn)
         WHERE billettID = '{billettID}' AND ForekomstID = '{forekomstID}'
         """)
@@ -374,12 +374,11 @@ def get_rute_info(email):
     print("Her er dine billetter:\n")
     
     for i in range(len(get_rute_info(email))):
-        if i == 
-        print(f"{ticket[1]}: Rute nummer {ticket[0]} i vogn {get_seat(ticket[])}")
-        beds.append(get_seat(ticket[2][1]))
-        seats.append(get_bed(ticket[2][1]))
+        if i == True:
+            print(f"{ticket[1]}: Rute nummer {ticket[0]} i vogn {get_seat(ticket[0])}")
+            beds.append(get_seat(ticket[2][1]))
+            seats.append(get_bed(ticket[2][1]))
     
-    print
 
     
     customer = c.execute(
@@ -680,7 +679,7 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
                     c.execute("SELECT Count(*) FROM Bestilling")
                     
                     max_bestilling = c.fetchall()[0][0]
-                    c.execute(f"INSERT INTO Bestilling VALUES ({max_bestilling+1}, {ruteforekomst}, {id})")
+                    c.execute(f"INSERT INTO Bestilling VALUES ({max_ordrenr+1}, {ruteforekomst}, {id})")
                     
                     #Få alle delstrekningsIDer denne biletten gjelder for
 
@@ -766,3 +765,8 @@ if __name__ == "__main__":
     #init_db('sql_prosjektet.db')
 
     menu()
+
+    res = get_seat(1, 3)
+    print(res)
+    res2 = get_bed("mail", 2)
+    print(res2)
