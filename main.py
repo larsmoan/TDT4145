@@ -200,7 +200,7 @@ def get_togrute_info(stasjon, day):
 
     conn.close()
 
-
+# Task d)
 def add_one_day(date_str):
     date = datetime.strptime(date_str, "%Y-%d-%m")
 
@@ -216,7 +216,6 @@ def add_one_day(date_str):
     return new_date_str
 
 
-# Task d)
 def search_routes(date_str, stasjon1, stasjon2):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -253,9 +252,6 @@ def search_routes(date_str, stasjon1, stasjon2):
 
 
 # Task e)
-
-
-# Task e)
 def new_user(name, email, tlf):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -282,8 +278,6 @@ def new_user(name, email, tlf):
     conn.close()
 
 # task h)
-
-
 def get_seat(billettID, forekomstID):
     # Finner seteinforamsjon fra billetten
     conn = sqlite3.connect('sql_prosjektet.db')
