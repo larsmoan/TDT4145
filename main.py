@@ -336,8 +336,10 @@ def get_rute_info(email):
     FROM SitteBillett
     """)
     sit_q_res = sit_q.fetchall()
+    #print(sit_q_res[0])
 
     tripInfo = []
+    all = []
     for ticket in get_ticket(email):
         query = c.execute(f"""
         SELECT Rute.RuteID, RuteForekomst.dato
@@ -348,17 +350,18 @@ def get_rute_info(email):
         # Sjekker om billettID tilhører en sittebillett, i så fall lages en ny tuppel ele som inneholder
         # setet (seteID, vognID, operatørNavn) og vognNr i det første del, og ruteID og forekomsDato i andre del 
         res = query.fetchone()
-        if res[2] in sit_q_res:
-            ele = (get_seat(res[2],res[1]),res)
+        print(ticket)
+        if ticket[2] in sit_q_res:
+            ele = (get_seat(ticket[2],ticket[1]),res)
             tripInfo.append(ele)
         else:
-            ele = (get_bed(res[2],res[1]),res)
+            ele = (get_bed(ticket[2],ticket[1]),res)
             tripInfo.append(ele)
         
 
     conn.close()
 
-    return tripInfo
+    #print(tripInfo)
 
 
     """ 
@@ -764,9 +767,6 @@ if __name__ == "__main__":
     #CREATE_db("sql_prosjektet.sql")
     #init_db('sql_prosjektet.db')
 
-    menu()
+    #menu()
 
-    res = get_seat(1, 3)
-    print(res)
-    res2 = get_bed("mail", 2)
-    print(res2)
+    get_rute_info("mail")
