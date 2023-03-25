@@ -1,7 +1,7 @@
 import sqlite3
 import os
 import datetime
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 
 def CREATE_db(filename):
@@ -285,6 +285,7 @@ def new_user(name, email, tlf):
 
 
 def get_seat(billettID, forekomstID):
+    # Finner seteinforamsjon fra billetten
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
@@ -301,6 +302,7 @@ def get_seat(billettID, forekomstID):
 
 
 def get_bed(billettID, forekomstID):
+    # Returnerer sengeinformasjon fra en billett
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
@@ -317,6 +319,7 @@ def get_bed(billettID, forekomstID):
 
 
 def get_ticket(email):
+    # Returnerer billetter til en gitt kunde
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
 
@@ -331,9 +334,14 @@ def get_ticket(email):
     return res
 
 
-def get_rute_info(email):
+def get_future_info(email):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
+
+    tripInfo = []
+    today = datetime.today().date()
+
+    print("\nDINE FREMTIDIGE REISER:\n")
 
     # Finner alle sittebilletter
     sit_q = c.execute("""
@@ -341,8 +349,8 @@ def get_rute_info(email):
     FROM SitteBillett
     """)
     sit_q_res = sit_q.fetchall()
-    tripInfo = []
 
+    # Iterer gjennom alle billettene til kunden
     for ticket in get_ticket(email):
         query = c.execute(f"""
         SELECT Rute.RuteID, RuteForekomst.dato, Rute.endeStasjon
@@ -350,24 +358,29 @@ def get_rute_info(email):
         WHERE RuteForekomst.ForekomstID = '{ticket[1]}'
         ORDER BY RuteForekomst.dato
         """)
-        # Sjekker om billettID tilhører en sittebillett, i så fall lages en ny tuppel ele
-        # sammensatt av seteinformasjon ruteinformasjon. Hvis ikke lages ele med sengeinformasjon
+        # Finner ruteinformasjon
         res = query.fetchone()
 
-        # Billetten er en sitteBillett
-        if (ticket[2],) in sit_q_res:
-            ele = (get_seat(ticket[2], ticket[1]), res)
-            tripInfo.append(ele)
-            print(
-                f"{ele[1][1]} kl. FYLL: Rute {ele[1][0]} mot {ele[1][2]} med {ele[0][0][2]}, sete {ele[0][0][0]} vogn {ele[0][0][3]}")
-        # Billetten er en soveBillett
-        else:
-            ele = (get_bed(ticket[2], ticket[1]), res)
-            tripInfo.append(ele)
-            print(
-                f"{ele[1][1]} kl. FYLL: Rute {ele[1][0]} mot {ele[1][2]} med {ele[0][0][2]}, seng {ele[0][0][0]} vogn {ele[0][0][3]}")
+        # Forsikrer at togruten er i fremtiden
+        ruteDag = datetime.strptime(res[1], "%Y-%d-%m").date()
+        if today<=ruteDag:
 
-    # print(all)
+            # Sjekker om billettID tilhører en sittebillett, i så fall lages en ny tuppel ele
+            # sammensatt av seteinformasjon og ruteinformasjon. Hvis ikke lages ele med sengeinformasjon
+
+            # Billetten er en sitteBillett
+            if (ticket[2],) in sit_q_res:
+                ele = (get_seat(ticket[2], ticket[1]), res)
+                tripInfo.append(ele)
+                print(
+                    f"{ele[1][1]} kl. FYLL: Rute {ele[1][0]} mot {ele[1][2]} med {ele[0][0][2]}, sete {ele[0][0][0]} vogn {ele[0][0][3]}")
+            # Billetten er en soveBillett
+            else:
+                ele = (get_bed(ticket[2], ticket[1]), res)
+                tripInfo.append(ele)
+                print(
+                    f"{ele[1][1]} kl. FYLL: Rute {ele[1][0]} mot {ele[1][2]} med {ele[0][0][2]}, seng {ele[0][0][0]} vogn {ele[0][0][3]}")
+    print("\n")
     conn.close()
 
 
@@ -699,7 +712,7 @@ def menu():
     print("2. Finn togruter som går mellom to stasjoner på et tidspunkt og dag")
     print("3. Registrer ny kunde")
     print("4. Kjøp billetter til en togrute")
-    print("5. Vis fremtidige reiser\n")
+    print("5. Vis dine fremtidige reiser\n")
     num = -1
 
     while num != 0:
@@ -740,7 +753,8 @@ def menu():
                     kundenr), startStasjon, endeStasjon, dato)
 
             case "5":
-                print("Denne funksjonaliteten støttes ikke enda")
+                email = input("Epost: ")
+                get_future_info(email)
             case "-1":
                 print("Ugyldig input")
 
@@ -751,6 +765,4 @@ if __name__ == "__main__":
     # CREATE_db("sql_prosjektet.sql")
     # init_db('sql_prosjektet.db')
 
-    # menu()
-
-    get_rute_info("mail")
+    menu()
