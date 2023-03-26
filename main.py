@@ -614,7 +614,7 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
                         # Her skal det legges inn i Bilettomfatter
                         bilettomfatter_insert = f"INSERT INTO BillettOmfatter VALUES ({ruteforekomst}, {id}, {int(delstrekningsID)})"
                         c.execute(bilettomfatter_insert)
-                print("Gratulerer med vel gjennomført kjøp av sittebillett")
+                    print("Gratulerer med vel gjennomført kjøp av sittebillett")
         elif valg == "2":
             # Fiks sengene
             biletter_dict = get_available_beds(startstasjon, endestasjon, dato)
@@ -672,7 +672,7 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
 
                         bilettomfatter_insert = f"INSERT INTO BillettOmfatter VALUES ({ruteforekomst}, {id}, {int(delstrekningsID[0][0])})"
                         c.execute(bilettomfatter_insert)
-                print("Gratulerer med vel gjennomført kjøp av sovebillett")
+                    print("Gratulerer med vel gjennomført kjøp av sovebillett")
         conn.commit()
         conn.close()
     except Exception as e:
