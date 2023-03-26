@@ -3,7 +3,6 @@ import os
 import datetime
 from datetime import datetime, timedelta, date
 
-
 def CREATE_db(filename):
     # Just a dummy name for the database
     db_filename = filename[:-4] + '.db'
@@ -18,7 +17,6 @@ def CREATE_db(filename):
         conn.executescript(sql_file.read())
 
     conn.close()
-
 
 def init_db(db_filename):
     # Skal legge inn nødvendig data som ikke trenger å programmeres direkte
@@ -154,6 +152,7 @@ def init_db(db_filename):
                 seng_query += f", ('{operator}',{vognID},{sengeID+1},{kupeeNr})"
     c.execute(seng_query)
 
+    #Test data for billetter 
     """ c.execute("pragma foreign_keys = ON")
     c.execute(f"INSERT INTO Billett VALUES ({1},{1})")
     c.execute(f"INSERT INTO BillettOmfatter VALUES ({1},{1},{3})")
@@ -169,8 +168,6 @@ def init_db(db_filename):
     conn.commit()
     conn.close()
 
-
-# Task c)
 def get_togrute_info(stasjon, day):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -200,7 +197,6 @@ def get_togrute_info(stasjon, day):
 
     conn.close()
 
-# Task d)
 def add_one_day(date_str):
     date = datetime.strptime(date_str, "%Y-%d-%m")
 
@@ -214,7 +210,6 @@ def add_one_day(date_str):
     new_date_str = new_date.strftime("%Y-%d-%m")
 
     return new_date_str
-
 
 def search_routes(date_str, stasjon1, stasjon2):
     conn = sqlite3.connect('sql_prosjektet.db')
@@ -250,8 +245,6 @@ def search_routes(date_str, stasjon1, stasjon2):
 
     conn.close()
 
-
-# Task e)
 def new_user(name, email, tlf):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -277,7 +270,6 @@ def new_user(name, email, tlf):
 
     conn.close()
 
-# task h)
 def get_seat(billettID, forekomstID):
     # Finner seteinforamsjon fra billetten
     conn = sqlite3.connect('sql_prosjektet.db')
@@ -293,7 +285,6 @@ def get_seat(billettID, forekomstID):
     res = seteInfo.fetchall()
     conn.close()
     return res
-
 
 def get_bed(billettID, forekomstID):
     # Returnerer sengeinformasjon fra en billett
@@ -311,7 +302,6 @@ def get_bed(billettID, forekomstID):
     conn.close()
     return res
 
-
 def get_ticket(email):
     # Returnerer billetter til en gitt kunde
     conn = sqlite3.connect('sql_prosjektet.db')
@@ -326,7 +316,6 @@ def get_ticket(email):
     res = ticketInfo.fetchall()
     conn.close()
     return res
-
 
 def get_future_info(email):
     conn = sqlite3.connect('sql_prosjektet.db')
@@ -367,18 +356,16 @@ def get_future_info(email):
                 ele = (get_seat(ticket[2], ticket[1]), res)
                 tripInfo.append(ele)
                 print(
-                    f"{ele[1][1]} kl. FYLL: Rute {ele[1][0]} mot {ele[1][2]} med {ele[0][0][2]}, sete {ele[0][0][0]} vogn {ele[0][0][3]}")
+                    f"{ele[1][1]} Rute {ele[1][0]} mot {ele[1][2]} med {ele[0][0][2]}, sete {ele[0][0][0]} vogn {ele[0][0][3]}")
             # Billetten er en soveBillett
             else:
                 ele = (get_bed(ticket[2], ticket[1]), res)
                 tripInfo.append(ele)
                 print(
-                    f"{ele[1][1]} kl. FYLL: Rute {ele[1][0]} mot {ele[1][2]} med {ele[0][0][2]}, seng {ele[0][0][0]} vogn {ele[0][0][3]}")
+                    f"{ele[1][1]} Rute {ele[1][0]} mot {ele[1][2]} med {ele[0][0][2]}, seng {ele[0][0][0]} vogn {ele[0][0][3]}")
     print("\n")
     conn.close()
 
-
-# task g)
 def get_delstrekningsIDer(startStasjon, endeStasjon):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -425,7 +412,6 @@ def get_delstrekningsIDer(startStasjon, endeStasjon):
         conn.close()
         return delstrekningsIDer, retning
 
-
 def get_ruter(delstrekningsIDer, retning, dato):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -438,7 +424,6 @@ def get_ruter(delstrekningsIDer, retning, dato):
     conn.close()
     return mulige_ruter
 
-
 def get_ruteforekomster(ruter, dato):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -450,7 +435,6 @@ def get_ruteforekomster(ruter, dato):
     mulige_ruteforekomster = [str(Rute[0]) for Rute in c.fetchall()]
     conn.close()
     return mulige_ruteforekomster
-
 
 def get_available_seats(startStasjon, endeStasjon, dato):
     conn = sqlite3.connect('sql_prosjektet.db')
@@ -503,7 +487,6 @@ def get_available_seats(startStasjon, endeStasjon, dato):
     conn.close()
     return ruteforekomstDict
 
-
 def get_available_beds(startStasjon, endeStasjon, dato):
     conn = sqlite3.connect('sql_prosjektet.db')
     c = conn.cursor()
@@ -546,8 +529,6 @@ def get_available_beds(startStasjon, endeStasjon, dato):
         return ruteforekomstDict
     conn.close()
 
-
-# Oppgave g) - står ikke eksplisitt at kunden skal oppgi hvilken dato den ønsker biletter på men det har vi antatt
 def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
     try:
         # Check if the customer exists
@@ -633,7 +614,7 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
                         # Her skal det legges inn i Bilettomfatter
                         bilettomfatter_insert = f"INSERT INTO BillettOmfatter VALUES ({ruteforekomst}, {id}, {int(delstrekningsID)})"
                         c.execute(bilettomfatter_insert)
-                print("Gratulerer med vel gjennomført kjøp av sittebillett")
+                    print("Gratulerer med vel gjennomført kjøp av sittebillett")
         elif valg == "2":
             # Fiks sengene
             biletter_dict = get_available_beds(startstasjon, endestasjon, dato)
@@ -691,13 +672,12 @@ def ticket_purchase(antallbiletter, kundenr, startstasjon, endestasjon, dato):
 
                         bilettomfatter_insert = f"INSERT INTO BillettOmfatter VALUES ({ruteforekomst}, {id}, {int(delstrekningsID[0][0])})"
                         c.execute(bilettomfatter_insert)
-                print("Gratulerer med vel gjennomført kjøp av sovebillett")
+                    print("Gratulerer med vel gjennomført kjøp av sovebillett")
         conn.commit()
         conn.close()
     except Exception as e:
         print(f"Noe gikk galt : {e}")
         conn.close()
-
 
 def menu():
     print("Dette er en database over jernbanen i Norge\n")
