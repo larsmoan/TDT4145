@@ -707,7 +707,7 @@ def menu():
 
                 dato = input("Hvilken dato? (YYYY-MM-DD) ")
                 print("")
-                search_routes(dato, startStasjon, endeStasjon)
+                search_routes(startStasjon, endeStasjon, dato)
 
             case "3":
                 print("KUNDEREGISTRERING\n")
